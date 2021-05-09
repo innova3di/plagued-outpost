@@ -12,6 +12,13 @@ class EnemyZone : MonoBehaviour
     private int m_stateHash;
     private float m_crossHairLength = 2.5f;
 
+    public GameObject roamDestiny;
+
+    public bool isOpenSpace = true;
+    private bool m_destinyNotReached = false;
+    private bool m_isMovingToDestiny = true;
+    private bool m_isIdleTimeOver = true;
+
     private List<MovementStateInformation> m_movementStateInfo = new List<MovementStateInformation>();
 
     public void Awake() { m_pauseMenu = GameObject.Find("HUDManager").GetComponent<PauseMenu>(); }
@@ -68,11 +75,36 @@ class EnemyZone : MonoBehaviour
         }
 
 
-
+        if (!isOpenSpace || !m_isMovingToDestiny || m_isIdleTimeOver)
+        {
+            findDestination();
+        }
+        else if (isOpenSpace || !m_destinyNotReached)
+        {
+            moveToDestination();
+        }
 
         TransformManipulator();
         AttackingBehaviour();
         Aggression();
+    }
+
+    private void findDestination()
+    {
+        float roamXPos = Random.Range(transform.position.x + 20, transform.position.x - 20);
+
+        float roamZPos = Random.Range(transform.position.z + 20, transform.position.z - 20);
+
+        Vector3 roamDestination = new Vector3(roamXPos, transform.position.y, roamZPos);
+
+        Instantiate(roamDestiny, roamDestination, Quaternion.identity);
+
+    }
+
+    private void moveToDestination()
+    {
+        m_isMovingToDestiny = true;
+        Debug.Log("Enemy is moving to its destiny.. ");
     }
 
     private void TransformManipulator()
