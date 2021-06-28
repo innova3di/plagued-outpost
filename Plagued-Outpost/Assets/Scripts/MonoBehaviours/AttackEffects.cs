@@ -14,7 +14,9 @@ public class AttackEffects : MonoBehaviour
     private bool m_audioLock;
 
     public bool AttackMissed { get; set; }
-    private bool m_hitConfirmed; public bool HitConfirmed { get { return m_hitConfirmed; } set { m_hitConfirmed = value; } }
+
+    private bool m_hitConfirmed; 
+    public bool HitConfirmed { get { return m_hitConfirmed; } set { m_hitConfirmed = value; } }
 
     private HitSystem m_hitSystem;
 

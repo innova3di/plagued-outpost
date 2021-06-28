@@ -40,6 +40,23 @@ namespace EventSystem
         }
     }
 
+    public class SpaceLocatorEvent
+    {
+        public SpaceLocatorEvent() { }
+
+        public delegate void FreeSpace();
+        public event FreeSpace occupiedSpaceEvent;
+
+        public void occupiedSpaceDetected()
+        {
+            if (occupiedSpaceEvent != null)
+            {
+                occupiedSpaceEvent();
+            }
+        }
+    }
+
+    // To be deprecated..
     public class HitSystemEvent
     {
         public HitSystemEvent() { }

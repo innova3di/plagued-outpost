@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 public class EnemyFightingState : StateMachineBehaviour
 {
@@ -8,6 +9,8 @@ public class EnemyFightingState : StateMachineBehaviour
         if (stateInfo.IsTag(AnimatorUtility.ES.IsBeingAttackedStates[1])) { AnimatorUtility.SetIntParameter(animator, "PreviousHitSet", 11); }
         if (stateInfo.IsTag(AnimatorUtility.ES.IsBeingAttackedStates[2])) { AnimatorUtility.SetIntParameter(animator, "PreviousHitSet", 1); }
         if (stateInfo.IsTag(AnimatorUtility.ES.IsBeingAttackedStates[3])) { AnimatorUtility.SetIntParameter(animator, "PreviousHitSet", 8); }
+
+
 
         /**
             if (stateInfo.IsTag(AnimatorUtility.ES.IsBeingAttackedStates[0]) || stateInfo.IsTag(AnimatorUtility.ES.IsBeingAttackedStates[1]) || stateInfo.IsTag(AnimatorUtility.ES.IsBeingAttackedStates[2]) || stateInfo.IsTag(AnimatorUtility.ES.IsBeingAttackedStates[3]))
@@ -37,11 +40,26 @@ public class EnemyFightingState : StateMachineBehaviour
 
     private float m_animationTime;
 
+    public static IEnumerator IdleTimer(Animator animator)
+    {
+        float idleTime = Random.Range(1, 10);
+
+        AnimatorUtility.SetFloatParameter(animator, "IdleTime", idleTime);
+        while (AnimatorUtility.GetFloatParameter(animator, "IdleTime") >= 0.1f)
+        {
+            AnimatorUtility.SetFloatParameter(animator, "IdleTime", AnimatorUtility.GetFloatParameter(animator, "Dazed") - Time.deltaTime);
+            yield return null;
+        }
+        AnimatorUtility.SetFloatParameter(animator, "IdleTime", 0f);
+    }
+
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         if (stateInfo.IsTag("Attack"))
         { AnimatorUtility.SetBoolParameter(animator, "IsAttacking", true); }
         else { AnimatorUtility.SetBoolParameter(animator, "IsAttacking", false); }
+
+
 
         if (stateInfo.fullPathHash == AnimatorUtility.EnemyAttacks[14])
         {

@@ -14,10 +14,15 @@ class EnemyZone : MonoBehaviour
 
     public GameObject roamDestiny;
 
-    public bool isOpenSpace = true;
+    private bool m_isOpenSpace = true;
+
+    public bool setOpenSpace { get { return m_isOpenSpace; } set { m_isOpenSpace = value; } }
+
+
     private bool m_destinyNotReached = false;
     private bool m_isMovingToDestiny = true;
     private bool m_isIdleTimeOver = true;
+    public bool foundDestination { get; set; }
 
     private List<MovementStateInformation> m_movementStateInfo = new List<MovementStateInformation>();
 
@@ -75,11 +80,11 @@ class EnemyZone : MonoBehaviour
         }
 
 
-        if (!isOpenSpace || !m_isMovingToDestiny || m_isIdleTimeOver)
+        if ((!m_isOpenSpace || !m_isMovingToDestiny || m_isIdleTimeOver) && !foundDestination)
         {
             findDestination();
         }
-        else if (isOpenSpace || !m_destinyNotReached)
+        else if (foundDestination || m_isOpenSpace || !m_destinyNotReached)
         {
             moveToDestination();
         }
@@ -92,19 +97,28 @@ class EnemyZone : MonoBehaviour
     private void findDestination()
     {
         float roamXPos = Random.Range(transform.position.x + 20, transform.position.x - 20);
-
         float roamZPos = Random.Range(transform.position.z + 20, transform.position.z - 20);
 
         Vector3 roamDestination = new Vector3(roamXPos, transform.position.y, roamZPos);
 
-        Instantiate(roamDestiny, roamDestination, Quaternion.identity);
+        GameObject destinationObj = Instantiate(roamDestiny, roamDestination, Quaternion.identity);
 
+        destinationObj.name = gameObject.GetComponentInParent<Transform>().root.name + "-nextPos";
+
+        if (GameObject.Find(destinationObj.name) != null)
+        {
+            foundDestination = true;
+        }
     }
 
     private void moveToDestination()
     {
         m_isMovingToDestiny = true;
         Debug.Log("Enemy is moving to its destiny.. ");
+        if (AnimatorUtility.GetFloatParameter(m_animator, "IdleTime") == 0)
+        {
+            AnimatorUtility.SetBoolParameter(m_animator, "Roam", true);
+        }
     }
 
     private void TransformManipulator()
@@ -127,6 +141,8 @@ class EnemyZone : MonoBehaviour
     {
         if ((AnimatorUtility.GetBoolParameter(m_animator, "Idle") || AnimatorUtility.GetBoolParameter(m_animator, "Sprint")))
         {
+            StartCoroutine(EnemyFightingState.IdleTimer(m_animator));
+
             if (AnimatorUtility.GetBoolParameter(m_animator, "GroundPound") == true)
             {
                 AnimatorUtility.SetIntParameter(m_animator, "SkillSetNumber", 1);
