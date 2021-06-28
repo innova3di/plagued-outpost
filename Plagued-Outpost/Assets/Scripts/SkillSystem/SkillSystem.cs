@@ -49,52 +49,52 @@ public class SkillSystem : MonoBehaviour
         m_notification = GameObject.Find("HUDManager").GetComponentInChildren<Notification>();
     }
 
-    private void ActivateSkill(SkillData sd)
+    private void ActivateSkill(SkillData skillInputData)
     {
         m_skillSystemEvent = new SkillSystemEvent();
         m_skillActivator = new SkillActivator(m_skillSystemEvent);
-        m_skillSystemEvent.OnActivateSkill(sd, this);
+        m_skillSystemEvent.OnActivateSkill(skillInputData, this);
         SkillCombo = m_skillActivator.SkillCombo;
-        // Debug.Log(sd.SkillSet + " is Acitvated.. Time Gap = " + (Time.time - m_previousSkillTriggerTime));
-        if (sd.CoolDownTime > 0) { StartCoroutine(m_skillActivator.CoolDown(sd, m_animator)); }
+        // Debug.Log(skillInputData.SkillSet + " is Acitvated.. Time Gap = " + (Time.time - m_previousSkillTriggerTime));
+        if (skillInputData.CoolDownTime > 0) { StartCoroutine(m_skillActivator.CoolDown(skillInputData, m_animator)); }
 
         m_comboSystem.Update(this, m_skillSystemEvent); // Debug.Log(m_skillSystemEvent.JointAttackEventCount);
         if (!m_comboSystem.IsComboSystemRunning) StartCoroutine(m_comboSystem.JointAttackInitializer(transformManipulator.RayCast));
     }
 
-    private void SkillInputManager(SkillData sd)
+    private void SkillInputManager(SkillData skillInputData)
     {
-        if (sd.IsOnCoolDown == false)
+        if (skillInputData.IsOnCoolDown == false)
         {
-            if ((m_previousSkillData == null || m_previousSkillData != sd))
+            if ((m_previousSkillData == null || m_previousSkillData != skillInputData))
             {
                 if ((Time.time - m_previousSkillTriggerTime) > 0.25f)
                 {
-                    ActivateSkill(sd);
+                    ActivateSkill(skillInputData);
                 }
             }
-            else if (m_previousSkillData == sd)
+            else if (m_previousSkillData == skillInputData)
             {
-                if (sd.SkillSet == SkillSet.KIP_UP || sd.SkillSet == SkillSet.ROLL_BACK || sd.SkillSet == SkillSet.RETREAT)
+                if (skillInputData.SkillSet == SkillSet.KIP_UP || skillInputData.SkillSet == SkillSet.ROLL_BACK || skillInputData.SkillSet == SkillSet.RETREAT)
                 {
                     if ((Time.time - m_previousSkillTriggerTime) > 0.50f)
                     {
-                        ActivateSkill(sd); // we do the checks above to fix the reappearing recovery button when it is suppose to disappear after cooldown.
+                        ActivateSkill(skillInputData); // we do the checks above to fix the reappearing recovery button when it is suppose to disappear after cooldown.
                     }
-                    // else if (Time.time - m_previousSkillTriggerTime < 0.25f) { Debug.Log(sd.SkillSet + " is being SPAMMED.. "); }
+                    // else if (Time.time - m_previousSkillTriggerTime < 0.25f) { Debug.Log(skillInputData.SkillSet + " is being SPAMMED.. "); }
                 }
-                else if ((int)sd.SkillSet <= 7)
+                else if ((int)skillInputData.SkillSet <= 7)
                 {
                     if ((Time.time - m_previousSkillTriggerTime) > 0.25f)
                     {
-                        ActivateSkill(sd);
+                        ActivateSkill(skillInputData);
                     }
                 }
-                else { ActivateSkill(sd); }
+                else { ActivateSkill(skillInputData); }
             }
         }
-        else if (sd.IsOnCoolDown && Input.GetKeyDown(sd.KeyCode)) { m_notification.Push("Skill On Cooldown"); }
-        m_previousSkillData = sd;
+        else if (skillInputData.IsOnCoolDown && Input.GetKeyDown(skillInputData.KeyCode)) { m_notification.Push("Skill On Cooldown"); }
+        m_previousSkillData = skillInputData;
         m_previousSkillTriggerTime = Time.time;
     }
 
